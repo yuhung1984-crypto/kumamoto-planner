@@ -3,120 +3,150 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>九州：熊本進出之旅 2026</title>
+    <title>2026 九州：熊本進出自駕手冊 (1/30-2/3)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        [v-cloak] { display: none; } /* 防止 Vue 未載入前看到亂碼 */
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f1f5f9; margin: 0; padding: 0; }
-        .weather-float { animation: float 3s ease-in-out infinite; }
-        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        [v-cloak] { display: none; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f1f5f9; }
+        .weather-float { animation: floating 4s ease-in-out infinite; }
+        @keyframes floating { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .card-print { break-inside: avoid; border: 1px solid transparent; }
         @media print {
             .no-print { display: none !important; }
-            .print-only { display: block !important; }
-            body { background: white; }
-            .card { border: 1px solid #ccc; box-shadow: none !important; break-inside: avoid; }
+            body { background: white; padding: 0; }
+            .card-print { border: 1px solid #eee; box-shadow: none !important; margin-bottom: 1.5rem; }
+            .print-layout { display: block !important; width: 100%; }
         }
     </style>
 </head>
-<body>
+<body class="text-slate-800">
 
 <div id="app" v-cloak>
-    <div class="no-print relative h-64 bg-slate-800 flex items-center justify-center text-white">
-        <img src="https://images.unsplash.com/photo-1621508285906-e7275988590b?auto=format&fit=crop&w=1200&q=80" class="absolute inset-0 w-full h-full object-cover opacity-40">
-        <div class="relative z-10 text-center">
-            <h1 class="text-3xl md:text-5xl font-bold">九州熊本進出・五天四夜</h1>
-            <p class="mt-2 opacity-80">2026 行程管理系統</p>
+    <header class="no-print relative h-64 bg-slate-900 flex items-center justify-center text-white overflow-hidden">
+        <img src="https://images.unsplash.com/photo-1590483253013-eb643f01c80c?auto=format&fit=crop&w=1200&q=80" class="absolute inset-0 w-full h-full object-cover opacity-40">
+        <div class="relative z-10 text-center px-4">
+            <h1 class="text-3xl md:text-5xl font-bold tracking-tight">2026 九州：自駕之旅</h1>
+            <p class="mt-2 text-indigo-300 font-bold uppercase tracking-widest">IT794 (19:00 抵達) | IT795 (12:40 起飛)</p>
         </div>
-    </div>
+    </header>
 
     <main class="max-w-6xl mx-auto px-4 py-8">
         
-        <div class="no-print flex flex-wrap justify-between items-center mb-8 gap-4 bg-white p-4 rounded-2xl shadow-sm">
-            <div class="flex items-center space-x-2">
-                <span class="text-sm font-bold text-slate-500">當前匯率 1 JPY =</span>
-                <input type="number" v-model="rate" step="0.001" class="w-20 border-b-2 border-indigo-500 text-center font-bold focus:outline-none">
-                <span class="text-sm font-bold text-indigo-600">TWD</span>
+        <div class="no-print grid grid-cols-1 md:grid-cols-4 gap-6 mb-10 items-start">
+            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
+                <h3 class="text-xs font-bold text-slate-400 mb-2">台幣匯率設定</h3>
+                <div class="flex items-center gap-2">
+                    <span class="font-bold text-slate-600">1 JPY =</span>
+                    <input type="number" v-model="rate" step="0.001" class="w-20 border-b-2 border-indigo-500 font-bold text-center focus:outline-none">
+                    <span class="font-bold text-indigo-600">TWD</span>
+                </div>
             </div>
-            <button @click="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-full font-bold shadow-md transition-all">
-                🖨️ 列印/儲存 PDF
-            </button>
+
+            <div class="md:col-span-2 flex justify-center gap-4 py-2">
+                <div v-for="w in weather" class="weather-float flex flex-col items-center justify-center w-16 h-16 bg-white rounded-full shadow-lg border border-slate-50">
+                    <span class="text-[9px] font-bold text-slate-400">{{ w.day }}</span>
+                    <span class="text-xl">{{ w.icon }}</span>
+                    <span class="text-[9px] font-bold text-indigo-500">{{ w.temp }}°</span>
+                </div>
+            </div>
+
+            <div class="flex justify-end items-center">
+                <button @click="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-2xl font-bold shadow-xl transition-all hover:scale-105 active:scale-95">
+                    🖨️ 列印旅遊手冊
+                </button>
+            </div>
         </div>
 
         <div class="grid lg:grid-cols-3 gap-8">
-            <div class="lg:col-span-2">
-                <div v-for="(day, dIndex) in itinerary" :key="dIndex" class="mb-8 relative pl-6 border-l-4 border-indigo-200 last:border-0">
-                    <div class="absolute -left-[14px] top-0 w-6 h-6 bg-indigo-600 rounded-full border-4 border-white"></div>
+            <div class="lg:col-span-2 space-y-10">
+                <div v-for="(day, dIndex) in itinerary" :key="dIndex" class="relative pl-8 border-l-2 border-indigo-200 last:border-0 card-print">
+                    <div class="absolute -left-[13px] top-0 w-6 h-6 bg-indigo-600 rounded-full border-4 border-white shadow-md"></div>
                     
-                    <div class="bg-white p-6 rounded-2xl shadow-sm card">
-                        <div class="flex justify-between items-start mb-4">
-                            <h3 class="text-xl font-bold text-indigo-900">Day {{ dIndex + 1 }} <span class="text-sm text-slate-400 font-normal ml-2">{{ day.date }}</span></h3>
-                            <span class="text-xs bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full border border-emerald-100">宿：{{ day.stay }}</span>
-                        </div>
-                        
-                        <div v-for="(item, iIndex) in day.items" :key="iIndex" class="flex items-start mb-3 group">
-                            <input v-model="item.time" class="no-print text-sm font-bold text-slate-400 w-16 bg-transparent border-none p-0 focus:ring-0">
-                            <span class="print-only text-sm font-bold text-slate-400 w-16">{{item.time}}</span>
-                            <div class="flex-1 ml-2">
-                                <input v-model="item.desc" class="w-full text-slate-700 bg-transparent border-none p-0 focus:bg-indigo-50 rounded px-1 transition-all">
+                    <div class="bg-white p-6 md:p-8 rounded-3xl shadow-sm border border-slate-50">
+                        <div class="flex flex-wrap justify-between items-end mb-8 border-b pb-4">
+                            <div>
+                                <h2 class="text-3xl font-bold text-slate-800 tracking-tighter italic">DAY {{ dIndex + 1 }}</h2>
+                                <p class="text-sm font-bold text-indigo-400 uppercase tracking-widest">{{ day.date }}</p>
                             </div>
-                            <button @click="itinerary[dIndex].items.splice(iIndex, 1)" class="no-print text-rose-300 opacity-0 group-hover:opacity-100 hover:text-rose-500 transition-opacity">✕</button>
+                            <div class="text-right">
+                                <span class="text-[10px] text-slate-400 block font-bold mb-1 uppercase tracking-widest">Accommodation</span>
+                                <input v-model="day.stay" class="text-right text-sm font-bold text-emerald-600 border-none bg-transparent p-0 focus:ring-0 w-48" placeholder="輸入飯店名稱">
+                            </div>
                         </div>
-                        <button @click="itinerary[dIndex].items.push({time:'12:00', desc:'新行程點'})" class="no-print mt-2 text-xs text-indigo-400 hover:text-indigo-600 font-bold">+ 新增地點</button>
+
+                        <div class="space-y-6">
+                            <div v-for="(item, iIndex) in day.items" :key="iIndex" class="group flex items-start gap-4 p-2 hover:bg-slate-50 rounded-2xl transition-all">
+                                <input v-model="item.time" class="w-14 text-sm font-bold text-slate-400 border-none bg-transparent p-0 focus:ring-0">
+                                <div class="flex-1">
+                                    <input v-model="item.desc" class="w-full font-bold text-slate-700 border-none bg-transparent p-0 focus:ring-0 mb-1" placeholder="行程景點">
+                                    <div class="flex items-center gap-2">
+                                        <span class="text-[9px] px-1 bg-slate-100 rounded text-slate-400 font-bold">MAPCODE</span>
+                                        <input v-model="item.map" class="text-[11px] text-indigo-400 font-medium border-none bg-transparent p-0 focus:ring-0 w-full" placeholder="未填寫導航代碼">
+                                    </div>
+                                </div>
+                                <button @click="day.items.splice(iIndex, 1)" class="no-print opacity-0 group-hover:opacity-100 text-rose-300 hover:text-rose-500">✕</button>
+                            </div>
+                            <button @click="day.items.push({time:'10:00', desc:'新行程點', map:''})" class="no-print mt-2 text-xs text-indigo-400 font-bold hover:underline">+ 新增細節</button>
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <div class="space-y-6">
-                <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-6 rounded-3xl text-white shadow-lg weather-float">
-                    <div class="flex justify-between items-center mb-4">
-                        <h3 class="font-bold">地區預報</h3>
-                        <span class="text-xs opacity-75">熊本/大分</span>
+            <div class="space-y-8">
+                <div class="no-print bg-white p-6 rounded-3xl shadow-sm border border-slate-100">
+                    <h3 class="text-lg font-bold mb-6 flex items-center">
+                        <span class="w-2 h-6 bg-emerald-500 rounded-full mr-2"></span> 預算開銷統計
+                    </h3>
+                    <div class="space-y-3 mb-6 max-h-80 overflow-y-auto pr-2">
+                        <div v-for="(exp, index) in expenses" :key="index" class="flex items-center gap-2 bg-slate-50 p-3 rounded-2xl group transition-all hover:bg-slate-100">
+                            <input v-model="exp.item" class="flex-1 text-xs border-none bg-transparent focus:ring-0" placeholder="消費項目">
+                            <input type="number" v-model="exp.amount" class="w-20 text-xs text-right bg-transparent border-none font-bold focus:ring-0">
+                            <button @click="expenses.splice(index, 1)" class="text-slate-300 hover:text-rose-500 transition-colors">✕</button>
+                        </div>
                     </div>
-                    <div class="grid grid-cols-5 gap-2 text-center">
-                        <div v-for="w in weather" class="flex flex-col items-center">
-                            <span class="text-[10px] opacity-70 mb-1">{{ w.day }}</span>
-                            <span class="text-xl">{{ w.icon }}</span>
-                            <span class="text-[10px] mt-1">{{ w.temp }}°</span>
+                    <button @click="expenses.push({item:'新項目', amount:0})" class="w-full py-3 border-2 border-dashed border-slate-200 rounded-2xl text-slate-400 text-xs hover:border-indigo-300 transition-all">+ 新增一筆支出</button>
+                    
+                    <div class="mt-8 pt-6 border-t-2 border-slate-50">
+                        <div class="flex justify-between items-end">
+                            <span class="font-bold text-slate-700">換算台幣總計</span>
+                            <div class="text-right">
+                                <p class="text-[10px] text-slate-400 font-bold uppercase">Estimated TWD</p>
+                                <span class="text-3xl font-bold text-emerald-600 tracking-tighter">NT$ {{ totalTWD.toLocaleString() }}</span>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 card">
-                    <h3 class="font-bold text-lg mb-4 text-slate-700 border-b pb-2">💰 預算記帳</h3>
-                    <div class="space-y-3 mb-6 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
-                        <div v-for="(exp, index) in expenses" :key="index" class="flex items-center gap-2 bg-slate-50 p-2 rounded-lg group">
-                            <input v-model="exp.item" class="flex-1 text-xs border-none bg-transparent focus:ring-0" placeholder="項目">
-                            <input type="number" v-model="exp.amount" class="w-20 text-xs text-right bg-transparent border-none font-bold focus:ring-0">
-                            <button @click="expenses.splice(index, 1)" class="no-print text-slate-300 hover:text-rose-500 transition-colors">✕</button>
-                        </div>
-                    </div>
-                    <button @click="expenses.push({item:'', amount:0})" class="no-print w-full py-2 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 text-xs hover:border-indigo-300 transition-all">+ 新增支出</button>
-                    
-                    <div class="mt-6 pt-4 border-t-2 border-slate-100">
-                        <div class="flex justify-between text-xs text-slate-400 mb-1">
-                            <span>日幣總計</span>
-                            <span>¥ {{ totalJPY.toLocaleString() }}</span>
-                        </div>
-                        <div class="flex justify-between items-end">
-                            <span class="font-bold text-slate-700">預估台幣</span>
-                            <span class="text-2xl font-bold text-emerald-600 tracking-tight">NT$ {{ totalTWD.toLocaleString() }}</span>
-                        </div>
-                    </div>
+                <div class="bg-slate-900 p-8 rounded-3xl text-white shadow-xl card-print">
+                    <h3 class="text-xl font-bold mb-6 border-b border-slate-700 pb-4">🚗 自駕備忘錄</h3>
+                    <ul class="text-xs space-y-4 opacity-90 leading-relaxed">
+                        <li class="flex items-start gap-2 text-indigo-300">
+                            <span class="font-bold font-mono">1.</span>
+                            <span><b>IT795 歸途提醒：</b>12:40起飛。09:30必須從熊本市區出發，10:30前務必完成還車。</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold font-mono">2.</span>
+                            <span>第一天 19:00 抵達後，請確認取車櫃檯是否仍在營業時間內（通常已提前預約則沒問題）。</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold font-mono">3.</span>
+                            <span>1/31 前往由布院路段可能遭遇山路暗冰，請溫和駕駛。</span>
+                        </li>
+                        <li class="flex items-start gap-2">
+                            <span class="font-bold font-mono">4.</span>
+                            <span>還車前請記得在機場附近加油站「加滿油」並保留收據。</span>
+                        </li>
+                    </ul>
                 </div>
             </div>
         </div>
     </main>
 
-    <footer class="no-print text-center py-12 text-slate-400 text-xs">
-        <p>九州之旅 2026 | Travel Master 規劃工具</p>
+    <footer class="no-print text-center py-12 text-slate-400 text-[10px] font-bold uppercase tracking-widest">
+        © 2026 Travel Master Planning Tool | Kyushu Adventure
     </footer>
-
-    <div class="print-only hidden w-full text-center py-10 border-b-4 border-indigo-600 mb-10">
-        <h1 class="text-4xl font-bold">九州旅遊手冊 (熊本進出 5D4N)</h1>
-        <p class="text-slate-500 mt-2">這份行程將陪伴你創造美好的回憶</p>
-    </div>
 </div>
 
 <script>
@@ -126,21 +156,47 @@
         setup() {
             const rate = ref(0.21);
             const itinerary = ref([
-                { date: '2026/03/01', stay: '熊本機場周邊', items: [{time:'07:50', desc:'抵達熊本機場 (KMJ)'}, {time:'10:00', desc:'辦理租車/接駁'}, {time:'12:00', desc:'阿蘇地區午餐'}] },
-                { date: '2026/03/02', stay: '中津市附近', items: [{time:'10:00', desc:'由布院金鱗湖散策'}, {time:'14:00', desc:'別府地獄溫泉巡禮'}] },
-                { date: '2026/03/03', stay: '福岡外圍', items: [{time:'11:00', desc:'小倉城/旦過市場'}, {time:'16:00', desc:'博多寶可夢中心購物'}] },
-                { date: '2026/03/04', stay: '熊本市區', items: [{time:'10:00', desc:'柳川乘船體驗'}, {time:'15:30', desc:'熊本城與城彩苑'}] },
-                { date: '2026/03/05', stay: '溫暖的家', items: [{time:'10:00', desc:'熊本市區採買'}, {time:'13:00', desc:'前往熊本機場'}, {time:'15:00', desc:'起飛歸國'}] }
+                { date: '1/30 (FRI)', stay: '熊本機場周邊 (大津)', items: [
+                    { time: '19:00', desc: '抵達熊本機場 (IT794)', map: '' },
+                    { time: '20:30', desc: '租車公司取車、辦理飯店入住', map: '' },
+                    { time: '21:00', desc: '大津地區晚餐/宵夜 (推薦 Joyfull)', map: '' }
+                ]},
+                { date: '1/31 (SAT)', stay: '中津市附近飯店', items: [
+                    { time: '08:30', desc: '退房出發前往由布院', map: '269 357 558*14' },
+                    { time: '11:00', desc: '金鱗湖、湯之坪街道散策', map: '' },
+                    { time: '14:30', desc: '別府地獄溫泉 (海地獄)', map: '46 521 438*47' },
+                    { time: '17:30', desc: '前往中津市入住', map: '' }
+                ]},
+                { date: '2/01 (SUN)', stay: '福岡外圍 (久留米/鳥棲)', items: [
+                    { time: '09:30', desc: '小倉城、勝山公園巡禮', map: '16 465 440*56' },
+                    { time: '13:30', desc: '福岡天神購物、寶可夢中心', map: '13 320 285*47' },
+                    { time: '18:30', desc: '前往福岡外圍飯店入住', map: '' }
+                ]},
+                { date: '2/02 (MON)', stay: '熊本市區飯店', items: [
+                    { time: '09:30', desc: '柳川護城河乘船體驗', map: '69 876 564*33' },
+                    { time: '12:00', desc: '柳川鰻魚飯午餐', map: '' },
+                    { time: '15:30', desc: '熊本城、櫻之馬場城彩苑', map: '29 489 253*17' },
+                    { time: '19:00', desc: '熊本市區購物 (最後採買)', map: '' }
+                ]},
+                { date: '2/03 (TUE)', stay: '溫暖的家', items: [
+                    { time: '08:00', desc: '悠閒早餐、最後整理行李', map: '' },
+                    { time: '09:15', desc: '務必出發前往熊本機場', map: '291 101 228*71' },
+                    { time: '10:30', desc: '機場還車、完成報到手續', map: '' },
+                    { time: '12:40', desc: 'IT795 歸途起飛', map: '' }
+                ]}
             ]);
             const weather = ref([
-                { day: 'D1', icon: '☀️', temp: '16' }, { day: 'D2', icon: '☁️', temp: '14' },
-                { day: 'D3', icon: '☀️', temp: '15' }, { day: 'D4', icon: '🌤️', temp: '17' },
-                { day: 'D5', icon: '☀️', temp: '18' }
+                { day: '1/30', icon: '☁️', temp: '7' },
+                { day: '1/31', icon: '☀️', temp: '9' },
+                { day: '2/01', icon: '☀️', temp: '11' },
+                { day: '2/02', icon: '🌤️', temp: '10' },
+                { day: '2/03', icon: '☀️', temp: '12' }
             ]);
             const expenses = ref([
-                { item: '預估機票', amount: 12000 },
-                { item: '租車交通', amount: 35000 },
-                { item: '住宿費用', amount: 45000 }
+                { item: '預估租車費+過路費', amount: 45000 },
+                { item: '機票預算 (一人)', amount: 12000 },
+                { item: '住宿總預算', amount: 50000 },
+                { item: '柳川船票/鰻魚飯', amount: 5000 }
             ]);
 
             const totalJPY = computed(() => expenses.value.reduce((s, e) => s + (Number(e.amount) || 0), 0));
