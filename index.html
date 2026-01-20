@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>2026 九州自駕手冊 | 雲端同步全能版</title>
+    <title>2026 九州自駕手冊 | 終極穩定版</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
@@ -15,33 +15,28 @@
         .weather-btn { animation: float 4s ease-in-out infinite; }
         @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
 
-        /* --- 超強效列印引擎 --- */
+        /* --- 修正版強化列印引擎 --- */
         @media print {
-            .no-print { display: none !important; } /* 隱藏所有不需要印的東西 */
-            .print-only { display: block !important; } /* 顯示列印專屬內容 */
-            
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
             body { background: white !important; padding: 0 !important; }
             #app, main { width: 100% !important; margin: 0 !important; padding: 0 !important; }
-            
-            /* 強制背景顏色顯示 (Chrome/Safari) */
             * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
-
             .card-print { 
                 display: block !important;
-                border: 2px solid #e2e8f0 !important; 
-                border-radius: 15px !important;
-                margin-bottom: 30px !important;
-                padding: 25px !important;
-                page-break-inside: avoid !important; /* 確保一天行程不會被切成兩頁 */
+                border: 1px solid #ddd !important; 
+                border-radius: 12px !important;
+                margin-bottom: 25px !important;
+                padding: 20px !important;
+                page-break-inside: avoid !important;
             }
-            .grid { display: block !important; } /* 雙欄變單欄 */
+            .grid { display: block !important; }
             .text-indigo-600, .text-emerald-600 { color: black !important; font-weight: bold !important; }
-            
             .print-header-title {
                 display: block !important;
                 text-align: center !important;
                 border-bottom: 4px solid #4f46e5 !important;
-                margin-bottom: 30px !important;
+                margin-bottom: 25px !important;
                 padding-bottom: 10px !important;
             }
         }
@@ -52,43 +47,9 @@
 
 <div id="app" v-cloak>
     <div v-if="loading" class="fixed inset-0 bg-slate-900 z-50 flex flex-col items-center justify-center text-white no-print">
-        <div class="w-14 h-14 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
-        <p class="text-indigo-300 font-bold tracking-widest animate-pulse">正在同步 Google Sheets 雲端行程...</p>
+        <div class="w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+        <p class="text-indigo-300 font-bold tracking-widest animate-pulse italic">正在從 Google Sheets 同步數據...</p>
     </div>
 
     <header class="no-print relative h-60 bg-slate-900 flex items-center justify-center text-white overflow-hidden">
-        <img src="https://images.unsplash.com/photo-1590483253013-eb643f01c80c?auto=format&fit=crop&w=1200&q=80" class="absolute inset-0 w-full h-full object-cover opacity-40">
-        <div class="relative z-10 text-center px-4">
-            <h1 class="text-3xl md:text-5xl font-bold tracking-tight">2026 九州：自駕之旅</h1>
-            <p class="mt-2 text-indigo-300 font-bold uppercase tracking-widest text-sm">🌐 雲端同步 & 離線手冊</p>
-        </div>
-    </header>
-
-    <div class="hidden print-only-title print-header-title">
-        <h1 class="text-3xl font-bold italic text-indigo-900">2026 九州自駕旅遊手冊</h1>
-        <p class="text-sm mt-2">IT794 (19:00抵) → IT795 (12:40起) | 匯率參考: {{rate}}</p>
-    </div>
-
-    <main class="max-w-6xl mx-auto px-4 py-8">
-        
-        <div class="no-print grid grid-cols-1 md:grid-cols-4 gap-6 mb-10 items-start">
-            <div class="bg-white p-5 rounded-3xl shadow-sm border border-slate-100">
-                <h3 class="text-xs font-bold text-slate-400 mb-2 uppercase">匯率設定 1 JPY =</h3>
-                <div class="flex items-center gap-2">
-                    <input type="number" v-model="rate" step="0.001" class="w-20 border-b-2 border-indigo-500 font-bold text-2xl text-center focus:outline-none bg-transparent">
-                    <span class="font-bold text-indigo-600">TWD</span>
-                </div>
-            </div>
-
-            <div class="md:col-span-2 flex justify-center gap-4 py-2">
-                <div v-for="w in weather" :key="w.day" class="weather-btn flex flex-col items-center justify-center w-16 h-16 bg-white rounded-full shadow-lg border border-slate-50">
-                    <span class="text-[9px] font-bold text-slate-400 uppercase">{{ w.day }}</span>
-                    <span class="text-xl">{{ w.icon }}</span>
-                    <span class="text-[9px] font-bold text-indigo-500">{{ w.temp }}°</span>
-                </div>
-            </div>
-
-            <div class="flex flex-col gap-2 items-end">
-                <button @click="triggerPrint" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-2xl font-bold shadow-xl transition-all transform active:scale-95 flex items-center justify-center gap-2">
-                    <span>🖨️ 列印/儲存手冊</span>
-                </button>
+        <img src="
