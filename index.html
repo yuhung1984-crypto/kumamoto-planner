@@ -3,131 +3,105 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>九州極致旅程 | Travel Master</title>
+    <title>九州：熊本進出之旅 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f8fafc; }
-        .print-only { display: none; }
+        [v-cloak] { display: none; } /* 防止 Vue 未載入前看到亂碼 */
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: #f1f5f9; margin: 0; padding: 0; }
+        .weather-float { animation: float 3s ease-in-out infinite; }
+        @keyframes float { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
         @media print {
             .no-print { display: none !important; }
-            .print-only { display: block; }
-            .page-break { page-break-after: always; }
+            .print-only { display: block !important; }
             body { background: white; }
-            .card { border: 1px solid #eee; box-shadow: none !important; }
-        }
-        .weather-float {
-            animation: float 3s ease-in-out infinite;
-        }
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
+            .card { border: 1px solid #ccc; box-shadow: none !important; break-inside: avoid; }
         }
     </style>
 </head>
-<body class="text-slate-800">
+<body>
 
-<div id="app" class="min-h-screen">
-    <header class="relative h-[40vh] flex items-center justify-center text-white overflow-hidden no-print">
-        <img src="https://images.unsplash.com/photo-1621508285906-e7275988590b?q=80&w=2070&auto=format&fit=crop" 
-             class="absolute inset-0 w-full h-full object-cover brightness-50" alt="Kyushu">
-        <div class="relative z-10 text-center px-4">
-            <h1 class="text-4xl md:text-6xl font-bold mb-2">九州極致旅程</h1>
-            <p class="text-lg md:text-xl opacity-90">Kyushu Adventure 2026</p>
+<div id="app" v-cloak>
+    <div class="no-print relative h-64 bg-slate-800 flex items-center justify-center text-white">
+        <img src="https://images.unsplash.com/photo-1621508285906-e7275988590b?auto=format&fit=crop&w=1200&q=80" class="absolute inset-0 w-full h-full object-cover opacity-40">
+        <div class="relative z-10 text-center">
+            <h1 class="text-3xl md:text-5xl font-bold">九州熊本進出・五天四夜</h1>
+            <p class="mt-2 opacity-80">2026 行程管理系統</p>
         </div>
-    </header>
+    </div>
 
-    <main class="max-w-5xl mx-auto px-4 py-12">
+    <main class="max-w-6xl mx-auto px-4 py-8">
         
-        <div class="flex flex-wrap justify-between items-center mb-8 no-print gap-4">
-            <div class="flex items-center space-x-4 bg-white p-3 rounded-xl shadow-sm border border-slate-100">
-                <label class="font-bold text-sm">匯率 1 JPY = </label>
-                <input type="number" v-model="rate" step="0.001" class="w-20 border-b-2 border-indigo-500 focus:outline-none text-center">
+        <div class="no-print flex flex-wrap justify-between items-center mb-8 gap-4 bg-white p-4 rounded-2xl shadow-sm">
+            <div class="flex items-center space-x-2">
+                <span class="text-sm font-bold text-slate-500">當前匯率 1 JPY =</span>
+                <input type="number" v-model="rate" step="0.001" class="w-20 border-b-2 border-indigo-500 text-center font-bold focus:outline-none">
                 <span class="text-sm font-bold text-indigo-600">TWD</span>
             </div>
-            <button @click="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-full font-bold transition-all shadow-lg flex items-center">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                </svg>
-                列印旅遊手冊
+            <button @click="window.print()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-2 rounded-full font-bold shadow-md transition-all">
+                🖨️ 列印/儲存 PDF
             </button>
         </div>
 
         <div class="grid lg:grid-cols-3 gap-8">
             <div class="lg:col-span-2">
-                <h2 class="text-2xl font-bold mb-6 flex items-center">
-                    <span class="bg-indigo-600 w-2 h-8 rounded-full mr-3"></span>
-                    每日行程規劃
-                </h2>
-                
-                <div v-for="(day, dIndex) in itinerary" :key="dIndex" class="mb-10 relative pl-8 border-l-2 border-indigo-100 last:border-0">
-                    <div class="absolute -left-[11px] top-0 w-5 h-5 bg-indigo-600 rounded-full border-4 border-white"></div>
+                <div v-for="(day, dIndex) in itinerary" :key="dIndex" class="mb-8 relative pl-6 border-l-4 border-indigo-200 last:border-0">
+                    <div class="absolute -left-[14px] top-0 w-6 h-6 bg-indigo-600 rounded-full border-4 border-white"></div>
                     
-                    <div class="bg-white p-6 rounded-2xl shadow-sm hover:shadow-md transition-shadow border border-slate-100 mb-4 card">
+                    <div class="bg-white p-6 rounded-2xl shadow-sm card">
                         <div class="flex justify-between items-start mb-4">
-                            <h3 class="text-xl font-bold text-indigo-900">Day {{ dIndex + 1 }} - {{ day.date }}</h3>
-                            <span class="text-sm bg-indigo-50 text-indigo-600 px-3 py-1 rounded-full font-medium">{{ day.stay }}</span>
+                            <h3 class="text-xl font-bold text-indigo-900">Day {{ dIndex + 1 }} <span class="text-sm text-slate-400 font-normal ml-2">{{ day.date }}</span></h3>
+                            <span class="text-xs bg-emerald-50 text-emerald-600 px-3 py-1 rounded-full border border-emerald-100">宿：{{ day.stay }}</span>
                         </div>
                         
-                        <div v-for="(item, iIndex) in day.items" :key="iIndex" class="group flex items-start mb-4 last:mb-0">
-                            <input v-model="item.time" class="text-sm font-bold text-slate-400 w-16 bg-transparent focus:outline-none no-print">
-                            <span class="hidden print-only font-bold text-sm w-16">{{item.time}}</span>
+                        <div v-for="(item, iIndex) in day.items" :key="iIndex" class="flex items-start mb-3 group">
+                            <input v-model="item.time" class="no-print text-sm font-bold text-slate-400 w-16 bg-transparent border-none p-0 focus:ring-0">
+                            <span class="print-only text-sm font-bold text-slate-400 w-16">{{item.time}}</span>
                             <div class="flex-1 ml-2">
-                                <input v-model="item.desc" class="w-full font-medium text-slate-700 bg-transparent focus:bg-indigo-50 px-2 py-1 rounded transition-colors border-none focus:ring-0">
+                                <input v-model="item.desc" class="w-full text-slate-700 bg-transparent border-none p-0 focus:bg-indigo-50 rounded px-1 transition-all">
                             </div>
-                            <button @click="removeItem(dIndex, iIndex)" class="opacity-0 group-hover:opacity-100 text-rose-400 hover:text-rose-600 transition-opacity no-print">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
-                                </svg>
-                            </button>
+                            <button @click="itinerary[dIndex].items.splice(iIndex, 1)" class="no-print text-rose-300 opacity-0 group-hover:opacity-100 hover:text-rose-500 transition-opacity">✕</button>
                         </div>
-                        
-                        <button @click="addItem(dIndex)" class="mt-4 text-sm text-indigo-500 hover:text-indigo-700 font-bold flex items-center no-print">
-                            + 新增行程地點
-                        </button>
+                        <button @click="itinerary[dIndex].items.push({time:'12:00', desc:'新行程點'})" class="no-print mt-2 text-xs text-indigo-400 hover:text-indigo-600 font-bold">+ 新增地點</button>
                     </div>
                 </div>
             </div>
 
-            <div class="space-y-8">
-                <div class="bg-gradient-to-br from-blue-400 to-indigo-500 p-6 rounded-3xl text-white shadow-xl weather-float relative overflow-hidden">
-                    <h3 class="font-bold text-lg mb-4">九州天氣預報</h3>
-                    <div class="flex justify-around items-center">
-                        <div v-for="w in weather" class="text-center">
-                            <p class="text-xs opacity-80 mb-1">{{ w.day }}</p>
-                            <span class="text-2xl">{{ w.icon }}</span>
-                            <p class="text-xs mt-1">{{ w.temp }}°</p>
+            <div class="space-y-6">
+                <div class="bg-gradient-to-br from-blue-500 to-indigo-600 p-6 rounded-3xl text-white shadow-lg weather-float">
+                    <div class="flex justify-between items-center mb-4">
+                        <h3 class="font-bold">地區預報</h3>
+                        <span class="text-xs opacity-75">熊本/大分</span>
+                    </div>
+                    <div class="grid grid-cols-5 gap-2 text-center">
+                        <div v-for="w in weather" class="flex flex-col items-center">
+                            <span class="text-[10px] opacity-70 mb-1">{{ w.day }}</span>
+                            <span class="text-xl">{{ w.icon }}</span>
+                            <span class="text-[10px] mt-1">{{ w.temp }}°</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="bg-white p-6 rounded-3xl shadow-sm border border-slate-100 card">
-                    <h3 class="font-bold text-xl mb-4 flex items-center">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 mr-2 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        支出預算統計
-                    </h3>
-                    <div class="space-y-4 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
-                        <div v-for="(exp, index) in expenses" :key="index" class="flex items-center gap-2 group">
-                            <input v-model="exp.item" class="flex-1 text-sm border-none bg-slate-50 rounded px-2 py-1 focus:ring-1 focus:ring-indigo-300" placeholder="項目">
-                            <input type="number" v-model="exp.amount" class="w-20 text-sm text-right bg-slate-50 rounded px-2 py-1 border-none font-bold" placeholder="JPY">
-                            <button @click="removeExpense(index)" class="text-rose-300 opacity-0 group-hover:opacity-100 no-print">×</button>
+                    <h3 class="font-bold text-lg mb-4 text-slate-700 border-b pb-2">💰 預算記帳</h3>
+                    <div class="space-y-3 mb-6 max-h-64 overflow-y-auto pr-2 custom-scrollbar">
+                        <div v-for="(exp, index) in expenses" :key="index" class="flex items-center gap-2 bg-slate-50 p-2 rounded-lg group">
+                            <input v-model="exp.item" class="flex-1 text-xs border-none bg-transparent focus:ring-0" placeholder="項目">
+                            <input type="number" v-model="exp.amount" class="w-20 text-xs text-right bg-transparent border-none font-bold focus:ring-0">
+                            <button @click="expenses.splice(index, 1)" class="no-print text-slate-300 hover:text-rose-500 transition-colors">✕</button>
                         </div>
                     </div>
-                    <button @click="addExpense" class="w-full mt-4 py-2 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 text-sm hover:border-indigo-300 hover:text-indigo-400 transition-all no-print">
-                        + 新增開支
-                    </button>
+                    <button @click="expenses.push({item:'', amount:0})" class="no-print w-full py-2 border-2 border-dashed border-slate-200 rounded-xl text-slate-400 text-xs hover:border-indigo-300 transition-all">+ 新增支出</button>
                     
-                    <div class="mt-6 pt-6 border-t border-slate-100">
-                        <div class="flex justify-between text-sm mb-2 text-slate-500">
-                            <span>總額 (JPY)</span>
-                            <span class="font-bold">¥ {{ totalJPY.toLocaleString() }}</span>
+                    <div class="mt-6 pt-4 border-t-2 border-slate-100">
+                        <div class="flex justify-between text-xs text-slate-400 mb-1">
+                            <span>日幣總計</span>
+                            <span>¥ {{ totalJPY.toLocaleString() }}</span>
                         </div>
-                        <div class="flex justify-between text-xl">
-                            <span class="font-bold text-indigo-900">預估台幣</span>
-                            <span class="font-bold text-emerald-600">NT$ {{ totalTWD.toLocaleString() }}</span>
+                        <div class="flex justify-between items-end">
+                            <span class="font-bold text-slate-700">預估台幣</span>
+                            <span class="text-2xl font-bold text-emerald-600 tracking-tight">NT$ {{ totalTWD.toLocaleString() }}</span>
                         </div>
                     </div>
                 </div>
@@ -135,12 +109,13 @@
         </div>
     </main>
 
-    <footer class="text-center py-12 text-slate-400 text-sm no-print">
-        <p>© 2026 Travel Master Planning System</p>
+    <footer class="no-print text-center py-12 text-slate-400 text-xs">
+        <p>九州之旅 2026 | Travel Master 規劃工具</p>
     </footer>
-    
-    <div class="print-only text-center py-4 border-b-2 border-indigo-600 mb-8">
-        <h1 class="text-3xl font-bold">九州旅遊手冊 (5天4夜)</h1>
+
+    <div class="print-only hidden w-full text-center py-10 border-b-4 border-indigo-600 mb-10">
+        <h1 class="text-4xl font-bold">九州旅遊手冊 (熊本進出 5D4N)</h1>
+        <p class="text-slate-500 mt-2">這份行程將陪伴你創造美好的回憶</p>
     </div>
 </div>
 
@@ -150,85 +125,5 @@
     createApp({
         setup() {
             const rate = ref(0.21);
-            
             const itinerary = ref([
-                { date: 'Day 1', stay: '福岡機場周邊', items: [
-                    { time: '07:50', desc: '抵達福岡機場，辦理入境' },
-                    { time: '09:30', desc: '機場接駁或租車手續' },
-                    { time: '12:00', desc: '博多拉麵橫丁午餐' },
-                    { time: '19:00', desc: '入住機場周邊/博多飯店' }
-                ]},
-                { date: 'Day 2', stay: '中津市附近', items: [
-                    { time: '09:00', desc: '出發前往由布院' },
-                    { time: '11:00', desc: '金鱗湖散策、由布院街道' },
-                    { time: '14:30', desc: '別府地獄溫泉巡禮' },
-                    { time: '18:00', desc: '前往中津市附近飯店入住' }
-                ]},
-                { date: 'Day 3', stay: '福岡外圍', items: [
-                    { time: '10:00', desc: '小倉城巡禮' },
-                    { time: '13:00', desc: '旦過市場午餐' },
-                    { time: '15:30', desc: '福岡天神商圈 / 寶可夢中心' },
-                    { time: '20:00', desc: '入住福岡外圍飯店' }
-                ]},
-                { date: 'Day 4', stay: '熊本市區', items: [
-                    { time: '09:30', desc: '柳川坐船體覽' },
-                    { time: '13:00', desc: '柳川鰻魚飯' },
-                    { time: '15:30', desc: '熊本城、櫻之馬場 城彩苑' },
-                    { time: '19:00', desc: '入住熊本市區飯店' }
-                ]},
-                { date: 'Day 5', stay: '回家', items: [
-                    { time: '10:00', desc: '熊本市區最後採買' },
-                    { time: '13:00', desc: '抵達熊本機場，準備登機' },
-                    { time: '15:00', desc: '搭機返回家園' }
-                ]}
-            ]);
-
-            const weather = ref([
-                { day: 'D1', icon: '☀️', temp: '18' },
-                { day: 'D2', icon: '☁️', temp: '16' },
-                { day: 'D3', icon: '🌤️', temp: '17' },
-                { day: 'D4', icon: '🌦️', temp: '15' },
-                { day: 'D5', icon: '☀️', temp: '19' }
-            ]);
-
-            const expenses = ref([
-                { item: '機票預算', amount: 12000 },
-                { item: '租車/交通', amount: 35000 },
-                { item: '由布院美食', amount: 5000 },
-                { item: '熊本城門票', amount: 800 }
-            ]);
-
-            const totalJPY = computed(() => {
-                return expenses.value.reduce((sum, exp) => sum + (exp.amount || 0), 0);
-            });
-
-            const totalTWD = computed(() => {
-                return Math.round(totalJPY.value * rate.value);
-            });
-
-            const addItem = (dIndex) => {
-                itinerary.value[dIndex].items.push({ time: '12:00', desc: '新景點/備註' });
-            };
-
-            const removeItem = (dIndex, iIndex) => {
-                itinerary.value[dIndex].items.splice(iIndex, 1);
-            };
-
-            const addExpense = () => {
-                expenses.value.push({ item: '', amount: 0 });
-            };
-
-            const removeExpense = (index) => {
-                expenses.value.splice(index, 1);
-            };
-
-            return {
-                itinerary, weather, expenses, rate,
-                totalJPY, totalTWD,
-                addItem, removeItem, addExpense, removeExpense
-            }
-        }
-    }).mount('#app')
-</script>
-</body>
-</html>
+                { date: '2026/03/01', stay: '熊本機場周邊', items: [{time:'07:50', desc:'抵達熊本機場 (KMJ)'}, {time:'10:00', desc:'辦理租車/接駁'}, {time
