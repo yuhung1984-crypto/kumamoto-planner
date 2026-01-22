@@ -32,6 +32,10 @@
             }
             .grid { display: block !important; }
             .text-indigo-600, .text-emerald-600 { color: black !important; font-weight: bold !important; }
+            
+            /* 列印時移除連結樣式 */
+            a { text-decoration: none !important; color: black !important; pointer-events: none !important; }
+            
             .print-header-title {
                 display: block !important;
                 text-align: center !important;
@@ -55,7 +59,7 @@
         <img src="https://images.unsplash.com/photo-1590483253013-eb643f01c80c?auto=format&fit=crop&w=1200&q=80" class="absolute inset-0 w-full h-full object-cover opacity-40">
         <div class="relative z-10 text-center px-4">
             <h1 class="text-3xl md:text-5xl font-bold tracking-tight">2026 九州自駕行程</h1>
-            <p class="mt-2 text-indigo-300 font-bold uppercase tracking-widest text-sm italic">雲端同步 | 計帳 | 列印 完美版</p>
+            <p class="mt-2 text-indigo-300 font-bold uppercase tracking-widest text-sm italic">雲端同步 | 計帳 | 導航 | 列印</p>
         </div>
     </header>
 
@@ -112,7 +116,15 @@
                             <div v-for="item in dayItems" :key="item.Time" class="flex items-start gap-5 p-1 transition-all">
                                 <span class="w-14 text-sm font-bold text-slate-400 mt-1 font-mono">{{ item.Time }}</span>
                                 <div class="flex-1">
-                                    <p class="font-bold text-slate-700 leading-snug">{{ item.Desc }}</p>
+                                    <a :href="'https://www.google.com/maps/search/?api=1&query=' + item.Desc" 
+                                       target="_blank"
+                                       class="font-bold text-slate-700 leading-snug hover:text-indigo-600 hover:underline cursor-pointer flex items-center gap-2 group">
+                                        {{ item.Desc }}
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-indigo-400 opacity-0 group-hover:opacity-100 transition-opacity no-print" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+                                        </svg>
+                                    </a>
+
                                     <div v-if="item.MapCode" class="mt-1.5 flex items-center gap-2">
                                         <span class="text-[9px] px-1.5 py-0.5 bg-indigo-50 text-indigo-500 rounded font-bold uppercase tracking-tighter">MapCode</span>
                                         <span class="text-xs text-slate-400 font-mono tracking-tighter">{{ item.MapCode }}</span>
